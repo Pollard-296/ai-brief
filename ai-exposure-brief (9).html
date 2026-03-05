@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Exposure Brief — Bridget Pollard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #111318;
+    --surface2: #181c24;
+    --border: #1e2330;
+    --accent: #00d4aa;
+    --accent2: #3b82f6;
+    --accent3: #f59e0b;
+    --text: #e8eaf0;
+    --text-dim: #6b7280;
+    --text-mid: #9ca3af;
+    --heat1: #0f2027;
+    --heat2: #0d3d30;
+    --heat3: #0a5c46;
+    --heat4: #00916e;
+    --heat5: #00d4aa;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grain texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  .page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 60px 40px;
+  }
+
+  /* HEADER */
+  .header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: start;
+    gap: 40px;
+    margin-bottom: 64px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid var(--border);
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards;
+  }
+
+  .header-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+
+  .header h1 span {
+    color: var(--accent);
+  }
+
+  .header-sub {
+    font-family: 'Lora', serif;
+    font-style: italic;
+    font-size: 15px;
+    color: var(--text-mid);
+    margin-top: 10px;
+    line-height: 1.6;
+    max-width: 480px;
+  }
+
+  .header-meta {
+    text-align: right;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    line-height: 2;
+  }
+
+  .header-meta strong {
+    color: var(--text-mid);
+    display: block;
+    font-size: 13px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  /* STATS ROW */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 56px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.15s forwards;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+  }
+
+  .stat-card:nth-child(2)::before { background: var(--accent2); }
+  .stat-card:nth-child(3)::before { background: var(--accent3); }
+  .stat-card:nth-child(4)::before { background: #a855f7; }
+
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .stat-card:nth-child(2) .stat-num { color: var(--accent2); }
+  .stat-card:nth-child(3) .stat-num { color: var(--accent3); }
+  .stat-card:nth-child(4) .stat-num { color: #a855f7; }
+
+  .stat-label {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  /* SECTION HEADERS */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .section-tag {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    background: rgba(0, 212, 170, 0.08);
+    border: 1px solid rgba(0, 212, 170, 0.2);
+    padding: 4px 10px;
+    border-radius: 3px;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* HEATMAP */
+  .heatmap-section {
+    margin-bottom: 56px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.3s forwards;
+  }
+
+  .heatmap-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .heatmap-row {
+    display: grid;
+    grid-template-columns: 160px 1fr 60px;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .tool-name {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-mid);
+    text-align: right;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .bar-track {
+    height: 28px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid var(--border);
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: rgba(0,0,0,0.7);
+    text-transform: uppercase;
+    width: 0;
+    transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+  }
+
+  .bar-fill.animate { width: var(--target-width); }
+
+  .bar-pct {
+    font-size: 10px;
+    color: var(--text-dim);
+    text-align: right;
+    font-weight: 500;
+  }
+
+  /* category colors */
+  .cat-daily    { background: linear-gradient(90deg, #00916e, #00d4aa); }
+  .cat-weekly   { background: linear-gradient(90deg, #1d4ed8, #3b82f6); }
+  .cat-regular  { background: linear-gradient(90deg, #92400e, #f59e0b); }
+  .cat-explored { background: linear-gradient(90deg, #4c1d95, #a855f7); }
+  .cat-emerging { background: linear-gradient(90deg, #1f2937, #374151); color: #6b7280 !important; }
+
+  .category-group {
+    margin-bottom: 24px;
+  }
+
+  .category-label {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    padding-left: 174px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .category-label::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    background: var(--dot-color);
+  }
+
+  .legend {
+    display: flex;
+    gap: 24px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+  }
+
+  /* TWO COLUMN LOWER */
+  .lower-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 56px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.45s forwards;
+  }
+
+  .info-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 28px;
+  }
+
+  /* PULSE GRID */
+  .pulse-section {
+    margin-bottom: 56px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.5s forwards;
+  }
+
+  .pulse-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .pulse-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 22px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pulse-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.3;
+  }
+
+  .pulse-icon {
+    font-size: 22px;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .pulse-card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 10px;
+    letter-spacing: 0.02em;
+  }
+
+  .pulse-items {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .pulse-items li {
+    font-size: 10px;
+    color: var(--text-mid);
+    letter-spacing: 0.03em;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    line-height: 1.4;
+  }
+
+  .pulse-items li::before {
+    content: '›';
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: -1px;
+  }
+
+  /* CURRENT WORK */
+  .work-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 56px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.6s forwards;
+  }
+
+  .work-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .work-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--stripe-color, var(--accent));
+  }
+
+  .work-badge {
+    display: inline-block;
+    font-size: 8px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 3px;
+    margin-bottom: 12px;
+    font-weight: 500;
+    background: rgba(0,212,170,0.1);
+    color: var(--accent);
+    border: 1px solid rgba(0,212,170,0.2);
+  }
+
+  .work-card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+
+  .work-desc {
+    font-family: 'Lora', serif;
+    font-size: 12px;
+    color: var(--text-mid);
+    line-height: 1.7;
+  }
+
+  .work-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 14px;
+  }
+
+  .tool-chip {
+    font-size: 9px;
+    padding: 3px 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+
+  /* TECHNICAL EXPOSURE CALLOUT */
+  .tech-callout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tech-callout::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #f59e0b, #ef4444, #a855f7);
+  }
+
+  .tech-callout-label {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .tech-callout-mode {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 14px;
+    line-height: 1.2;
+  }
+
+  .tech-callout-desc {
+    font-family: 'Lora', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--text-mid);
+    line-height: 1.8;
+    margin-bottom: 18px;
+  }
+
+  .tech-honest {
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.03em;
+    line-height: 1.6;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    padding: 12px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+  }
+
+  .tech-honest-icon {
+    color: var(--accent3);
+    flex-shrink: 0;
+    font-size: 8px;
+    margin-top: 2px;
+  }
+
+  .tech-lang-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    justify-content: center;
+    height: 100%;
+  }
+
+  .tech-lang-card {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    grid-template-rows: auto auto;
+    column-gap: 14px;
+    align-items: center;
+  }
+
+  .tech-lang-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+    text-align: right;
+  }
+
+  .tech-lang-bar {
+    height: 20px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 3px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .tech-lang-fill {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, #92400e, #f59e0b);
+    border-radius: 3px;
+    transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .tech-lang-fill.animate { width: var(--tw); }
+
+  .tech-lang-note {
+    grid-column: 2;
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+    margin-top: 3px;
+  }
+
+  @media (max-width: 768px) {
+    .tech-callout { grid-template-columns: 1fr; }
+  }
+
+  /* STUDY PATHS */
+  .study-section {
+    margin-bottom: 56px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.7s forwards;
+  }
+
+  .study-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .study-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 26px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .study-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent2), #7c3aed);
+  }
+
+  .study-status {
+    display: inline-block;
+    font-size: 8px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 3px;
+    margin-bottom: 14px;
+    font-weight: 500;
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--accent2);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+  }
+
+  .study-icon {
+    font-size: 28px;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .study-card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 10px;
+    line-height: 1.3;
+  }
+
+  .study-desc {
+    font-family: 'Lora', serif;
+    font-size: 12px;
+    color: var(--text-mid);
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+
+  .study-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .study-tag {
+    font-size: 9px;
+    padding: 3px 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+
+  /* FOOTER */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding-top: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.75s forwards;
+  }
+
+  .footer-note {
+    font-family: 'Lora', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  .footer-date {
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+  }
+
+  /* LINKS */
+  a {
+    color: inherit;
+    text-decoration: none;
+    position: relative;
+  }
+
+  .tool-link {
+    color: var(--text-mid);
+    transition: color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .tool-link:hover { color: var(--accent); }
+  .tool-link::after {
+    content: '↗';
+    font-size: 8px;
+    opacity: 0;
+    transform: translate(-2px, 2px);
+    transition: all 0.2s ease;
+  }
+  .tool-link:hover::after {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+
+  .pulse-link {
+    color: var(--text-mid);
+    transition: color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    border-bottom: 1px dashed rgba(255,255,255,0.1);
+    padding-bottom: 1px;
+  }
+  .pulse-link:hover {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+  .pulse-link::after {
+    content: '↗';
+    font-size: 7px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .pulse-link:hover::after { opacity: 1; }
+
+  .chip-link {
+    color: var(--text-dim);
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .chip-link:hover {
+    color: var(--accent);
+    border-color: rgba(0,212,170,0.3);
+  }
+
+  /* EXPLORED TILES */
+  .explored-tile-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-left: 174px;
+  }
+
+  .explored-tile {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 14px;
+    background: rgba(168, 85, 247, 0.06);
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-mid);
+    letter-spacing: 0.03em;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+
+  .explored-tile span {
+    font-size: 9px;
+    opacity: 0;
+    transform: translate(-2px, 1px);
+    transition: all 0.2s ease;
+    color: #a855f7;
+  }
+
+  .explored-tile:hover {
+    color: #a855f7;
+    background: rgba(168, 85, 247, 0.12);
+    border-color: rgba(168, 85, 247, 0.45);
+    transform: translateY(-1px);
+  }
+
+  .explored-tile:hover span {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+
+  @media (max-width: 768px) {
+    .explored-tile-grid { padding-left: 0; }
+  }
+
+  /* TOOLTIP on heatmap rows */
+  .heatmap-row {
+    position: relative;
+    cursor: pointer;
+  }
+  .heatmap-row:hover .tool-name { color: var(--accent); }
+  .heatmap-row:hover .bar-pct { color: var(--text); }
+
+  .tooltip {
+    position: absolute;
+    right: 70px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--surface2);
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-size: 9px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 10;
+  }
+  .heatmap-row:hover .tooltip { opacity: 1; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  @media (max-width: 768px) {
+    .page { padding: 32px 20px; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .lower-grid, .pulse-grid, .work-grid { grid-template-columns: 1fr; }
+    .header { grid-template-columns: 1fr; }
+    .header-meta { text-align: left; }
+    .heatmap-row { grid-template-columns: 120px 1fr 40px; }
+    .category-label { padding-left: 134px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <div class="header-label">// AI Exposure & Engagement Brief</div>
+      <h1>Bridget Pollard<br><span>in the Age of AI</span></h1>
+      <p class="header-sub">A practitioner's view — tools, networks, and applied work at the intersection of AI and construction project controls.</p>
+    </div>
+    <div class="header-meta">
+      <strong>Bridget Pollard</strong>
+      Senior Controller<br>
+      Currie & Brown<br>
+      <br>
+      MARCH 2026
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-num">28</div>
+      <div class="stat-label">AI Tools & Platforms</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">5+</div>
+      <div class="stat-label">Active AI Communities</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">9+</div>
+      <div class="stat-label">Newsletters & Substacks</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">3</div>
+      <div class="stat-label">Conference Networks</div>
+    </div>
+  </div>
+
+  <!-- HEATMAP -->
+  <div class="heatmap-section">
+    <div class="section-header">
+      <div class="section-tag">01 — Tools</div>
+      <div class="section-title">AI Tool Exposure Heatmap</div>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="heatmap-grid">
+
+      <!-- DAILY / CORE -->
+      <div class="category-group">
+        <div class="category-label" style="--dot-color: #00d4aa;">Daily / Core Workflow</div>
+
+        <div class="heatmap-row" onclick="window.open('https://claude.ai','_blank')">
+          <div class="tool-name"><a class="tool-link" href="https://claude.ai" target="_blank">Claude (Anthropic)</a></div>
+          <div class="bar-track"><div class="bar-fill cat-daily" style="--target-width: 97%"></div></div>
+          <div class="bar-pct">97%</div>
+          <div class="tooltip">Visit claude.ai ↗</div>
+        </div>
+        <div class="heatmap-row" onclick="window.open('https://copilot.microsoft.com','_blank')">
+          <div class="tool-name"><a class="tool-link" href="https://copilot.microsoft.com" target="_blank">Microsoft Copilot</a></div>
+          <div class="bar-track"><div class="bar-fill cat-daily" style="--target-width: 93%"></div></div>
+          <div class="bar-pct">93%</div>
+          <div class="tooltip">Visit copilot.microsoft.com ↗</div>
+        </div>
+      </div>
+
+      <!-- WEEKLY / ACTIVE -->
+      <div class="category-group">
+        <div class="category-label" style="--dot-color: #3b82f6;">Weekly / Active Use</div>
+
+        <div class="heatmap-row" onclick="window.open('https://chatgpt.com','_blank')">
+          <div class="tool-name"><a class="tool-link" href="https://chatgpt.com" target="_blank">ChatGPT</a></div>
+          <div class="bar-track"><div class="bar-fill cat-weekly" style="--target-width: 78%"></div></div>
+          <div class="bar-pct">78%</div>
+          <div class="tooltip">Visit chatgpt.com ↗</div>
+        </div>
+        <div class="heatmap-row" onclick="window.open('https://aws.amazon.com/q/','_blank')">
+          <div class="tool-name"><a class="tool-link" href="https://aws.amazon.com/q/" target="_blank">Amazon Q / QuickSuite</a></div>
+          <div class="bar-track"><div class="bar-fill cat-weekly" style="--target-width: 74%"></div></div>
+          <div class="bar-pct">74%</div>
+          <div class="tooltip">Visit aws.amazon.com/q ↗</div>
+        </div>
+        <div class="heatmap-row" onclick="window.open('https://gemini.google.com','_blank')">
+          <div class="tool-name"><a class="tool-link" href="https://gemini.google.com" target="_blank">Gemini / NanoBana</a></div>
+          <div class="bar-track"><div class="bar-fill cat-weekly" style="--target-width: 70%"></div></div>
+          <div class="bar-pct">70%</div>
+          <div class="tooltip">Visit gemini.google.com ↗</div>
+        </div>
+        <div class="heatmap-row" onclick="window.open('https://chat.deepseek.com','_blank')">
+          <div class="tool-name"><a class="tool-link" href="https://chat.deepseek.com" target="_blank">DeepSeek</a></div>
+          <div class="bar-track"><div class="bar-fill cat-weekly" style="--target-width: 66%"></div></div>
+          <div class="bar-pct">66%</div>
+          <div class="tooltip">Visit deepseek.com ↗</div>
+        </div>
+        <div class="heatmap-row" onclick="window.open('https://qwen.aliyun.com','_blank')">
+          <div class="tool-name"><a class="tool-link" href="https://www.alibabacloud.com" target="_blank">Alibaba Cloud / Qwen</a></div>
+          <div class="bar-track"><div class="bar-fill cat-weekly" style="--target-width: 62%"></div></div>
+          <div class="bar-pct">62%</div>
+          <div class="tooltip">Visit qwen.aliyun.com ↗</div>
+        </div>
+      </div>
+
+      <!-- REGULAR EXPLORATION -->
+      <div class="category-group">
+        <div class="category-label" style="--dot-color: #f59e0b;">Regular Exploration</div>
+
+        <div class="heatmap-row" onclick="window.open('https://github.com','_blank')">
+          <div class="tool-name"><a class="tool-link" href="https://github.com" target="_blank">GitHub</a></div>
+          <div class="bar-track"><div class="bar-fill cat-regular" style="--target-width: 50%"></div></div>
+          <div class="bar-pct">50%</div>
+          <div class="tooltip">Visit github.com ↗</div>
+        </div>
+        <div class="heatmap-row" onclick="window.open('https://huggingface.co','_blank')">
+          <div class="tool-name"><a class="tool-link" href="https://huggingface.co" target="_blank">HuggingFace</a></div>
+          <div class="bar-track"><div class="bar-fill cat-regular" style="--target-width: 46%"></div></div>
+          <div class="bar-pct">46%</div>
+          <div class="tooltip">Visit huggingface.co ↗</div>
+        </div>
+      </div>
+
+      <!-- EXPLORED / TESTED -->
+      <div class="category-group">
+        <div class="category-label" style="--dot-color: #a855f7;">Explored & Tested</div>
+        <div class="explored-tile-grid">
+          <a class="explored-tile" href="https://perplexity.ai" target="_blank">Perplexity <span>↗</span></a>
+          <a class="explored-tile" href="https://grok.com" target="_blank">Grok <span>↗</span></a>
+          <a class="explored-tile" href="https://mistral.ai" target="_blank">Mistral <span>↗</span></a>
+          <a class="explored-tile" href="https://www.ibm.com/watson" target="_blank">IBM Watson <span>↗</span></a>
+          <a class="explored-tile" href="https://notebooklm.google.com" target="_blank">NotebookLM <span>↗</span></a>
+          <a class="explored-tile" href="https://notion.so" target="_blank">Notion AI <span>↗</span></a>
+          <a class="explored-tile" href="https://elevenlabs.io" target="_blank">ElevenLabs <span>↗</span></a>
+          <a class="explored-tile" href="https://otter.ai" target="_blank">Otter.ai <span>↗</span></a>
+          <a class="explored-tile" href="https://pieces.app" target="_blank">Pieces <span>↗</span></a>
+          <a class="explored-tile" href="https://midjourney.com" target="_blank">MidJourney <span>↗</span></a>
+          <a class="explored-tile" href="https://iweaver.ai" target="_blank">iWeaver <span>↗</span></a>
+          <a class="explored-tile" href="https://base44.com" target="_blank">Base44 <span>↗</span></a>
+          <a class="explored-tile" href="https://polsia.com" target="_blank">Polsia <span>↗</span></a>
+          <a class="explored-tile" href="https://figure.ai" target="_blank">Figure AI <span>↗</span></a>
+          <a class="explored-tile" href="https://openai.com/sora" target="_blank">Sora <span>↗</span></a>
+          <a class="explored-tile" href="https://factoryfloor.ai" target="_blank">Factory Floor <span>↗</span></a>
+          <a class="explored-tile" href="https://fleix.ai" target="_blank">Fleix <span>↗</span></a>
+          <a class="explored-tile" href="https://juno.ai" target="_blank">Juno <span>↗</span></a>
+          <a class="explored-tile" href="https://www.rabbitmq.com" target="_blank">RabbitMQ <span>↗</span></a>
+          <a class="explored-tile" href="https://www.docker.com" target="_blank">Docker <span>↗</span></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#00d4aa"></div> Daily Core Use</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div> Weekly Active</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div> Regular Exploration</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#a855f7"></div> Explored & Tested</div>
+    </div>
+  </div>
+
+  <!-- PULSE ON AI -->
+  <div class="pulse-section">
+    <div class="section-header">
+      <div class="section-tag">02 — Intelligence Network</div>
+      <div class="section-title">Keeping Pulse on the AI World</div>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="pulse-grid">
+
+      <div class="pulse-card">
+        <span class="pulse-icon">📬</span>
+        <div class="pulse-card-title">Newsletters & Email</div>
+        <ul class="pulse-items">
+          <li><a class="pulse-link" href="https://www.superhuman.ai" target="_blank">Superhuman — Zain Kahn</a></li>
+          <li><a class="pulse-link" href="https://theaireport.substack.com" target="_blank">The AI Report</a></li>
+          <li><a class="pulse-link" href="https://www.theautomated.co/" target="_blank">The Automated</a></li>
+          <li><a class="pulse-link" href="https://www.bayareatimes.com" target="_blank">Bay Area Times</a></li>
+          <li><a class="pulse-link" href="https://www.therundown.ai" target="_blank">The Rundown AI</a></li>
+          <li><a class="pulse-link" href="https://www.futureblueprint.xyz/" target="_blank">Future Blueprint</a></li>
+        </ul>
+      </div>
+
+      <div class="pulse-card">
+        <span class="pulse-icon">✍️</span>
+        <div class="pulse-card-title">Substacks</div>
+        <ul class="pulse-items">
+          <li><a class="pulse-link" href="https://emergingai.substack.com" target="_blank">Emerging AI</a></li>
+          <li><a class="pulse-link" href="https://claudecode.substack.com" target="_blank">Claude Code</a></li>
+          <li><a class="pulse-link" href="https://theaicollective.substack.com" target="_blank">The AI Collective</a></li>
+        </ul>
+        <div style="margin-top: 14px;">
+          <div class="pulse-card-title" style="font-size:12px; margin-bottom: 8px;">Podcasts</div>
+          <ul class="pulse-items">
+            <li><a class="pulse-link" href="https://podcasts.apple.com/us/podcast/the-daily-brief/id1754694834" target="_blank">The AI Daily Brief</a></li>
+            <li><a class="pulse-link" href="https://8minute.ai" target="_blank">8minute.Ai</a></li>
+            <li><a class="pulse-link" href="https://www.youreverydayai.com/" target="_blank">Everyday AI</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="pulse-card">
+        <span class="pulse-icon">💬</span>
+        <div class="pulse-card-title">Discord Communities</div>
+        <ul class="pulse-items">
+          <li><a class="pulse-link" href="https://discord.com/invite/elevenlabs" target="_blank">ElevenLabs</a></li>
+          <li><a class="pulse-link" href="https://discord.com/invite/hugging-face-879548962464493619" target="_blank">HuggingFace</a></li>
+          <li><a class="pulse-link" href="https://discord.gg/learnaitogether" target="_blank">Learn AI Together</a></li>
+          <li><a class="pulse-link" href="https://discord.gg/pieces" target="_blank">Pieces</a></li>
+          <li><a class="pulse-link" href="https://discord.com/invite/anthropic" target="_blank">Claude (Anthropic)</a></li>
+        </ul>
+      </div>
+
+      <div class="pulse-card">
+        <span class="pulse-icon">🎤</span>
+        <div class="pulse-card-title">Conferences & Events</div>
+        <ul class="pulse-items">
+          <li><a class="pulse-link" href="https://ai4.io" target="_blank">AI4 Conference</a></li>
+          <li><a class="pulse-link" href="https://www.pmi.org/events" target="_blank">PMIxAI</a></li>
+          <li><a class="pulse-link" href="https://www.ted.com/tedx" target="_blank">TEDxAI</a></li>
+          <li><a class="pulse-link" href="https://www.meetup.com/topics/artificial-intelligence/" target="_blank">Local AI Meetups</a></li>
+        </ul>
+      </div>
+
+      <div class="pulse-card">
+        <span class="pulse-icon">🗣️</span>
+        <div class="pulse-card-title">Speaking & Leadership</div>
+        <ul class="pulse-items">
+          <li>PMI Southern Ohio — Speaker</li>
+          <li>PMI Northern Kentucky — Speaker</li>
+          <li>Practitioner perspective on AI integration in project controls</li>
+        </ul>
+      </div>
+
+      <div class="pulse-card">
+        <span class="pulse-icon">🤝</span>
+        <div class="pulse-card-title">Direct Creator Access</div>
+        <ul class="pulse-items">
+          <li>Email relationships with AI communicators & creators</li>
+          <li>Active community member — not passive consumer</li>
+          <li>Feedback loops with tool developers via Discord</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CURRENT WORK -->
+  <div class="work-grid">
+    <div class="section-header" style="grid-column: 1/-1; margin-bottom: 8px;">
+      <div class="section-tag">03 — Applied Work</div>
+      <div class="section-title">What I'm Actually Building</div>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="work-card" style="--stripe-color: #3b82f6;">
+      <div class="work-badge">Co-Development</div>
+      <div class="work-card-title">AWS / Amazon Q Co-Dev Partnership</div>
+      <div class="work-desc">Collaborative development with an AWS client inside QuickSuite — identifying automation opportunities to close process and information gaps. Building inside GitHub with shared access to Amazon's premium toolset.</div>
+      <div class="work-tools">
+        <a href="https://aws.amazon.com/q/" target="_blank" class="tool-chip chip-link">Amazon Q</a>
+        <a href="https://github.com" target="_blank" class="tool-chip chip-link">GitHub</a>
+        <span class="tool-chip">QuickSuite</span>
+      </div>
+    </div>
+
+    <div class="work-card" style="--stripe-color: #00d4aa;">
+      <div class="work-badge">Active Agent</div>
+      <div class="work-card-title">Editorial Agent — Team Communication</div>
+      <div class="work-desc">A custom-built AI agent deployed via Copilot that assists the Currie & Brown team in maintaining consistent communication standards, tone calibration, and editorial quality across project correspondence.</div>
+      <div class="work-tools">
+        <a href="https://copilot.microsoft.com" target="_blank" class="tool-chip chip-link">Microsoft Copilot</a>
+        <span class="tool-chip">Custom Agent</span>
+        <span class="tool-chip">Prompt Engineering</span>
+      </div>
+    </div>
+
+    <div class="work-card" style="--stripe-color: #f59e0b;">
+      <div class="work-badge">In Progress</div>
+      <div class="work-card-title">SOPs & Career Development Map</div>
+      <div class="work-desc">Leveraging Claude to co-develop comprehensive Standard Operating Procedures and a structured career development framework for the project controls function — building institutional knowledge infrastructure at scale.</div>
+      <div class="work-tools">
+        <a href="https://claude.ai" target="_blank" class="tool-chip chip-link">Claude</a>
+        <span class="tool-chip">SOPs</span>
+        <span class="tool-chip">Process Design</span>
+        <a href="https://smartsheet.com" target="_blank" class="tool-chip chip-link">Smartsheet</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- CERT STUDY PATHS -->
+  <div class="study-section" style="animation-delay: 0.75s;">
+    <div class="section-header">
+      <div class="section-tag">04 — Certifications</div>
+      <div class="section-title">Certifications Held & In Progress</div>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="study-grid">
+      <div class="study-card">
+        <div class="study-status" style="background: rgba(0,212,170,0.1); color: var(--accent); border-color: rgba(0,212,170,0.25);">Held</div>
+        <div class="study-icon">🏆</div>
+        <div class="study-card-title">Project Management Professional (PMP)</div>
+        <div class="study-desc">One of the most globally recognized project management credentials — demonstrating proven experience leading and directing projects, with deep expertise in project controls, stakeholder management, and delivery frameworks.</div>
+        <div class="study-meta">
+          <a class="pulse-link" href="https://www.pmi.org/certifications/project-management-pmp" target="_blank">PMI Certification Page</a>
+          <span class="study-tag">Project Management</span>
+          <span class="study-tag">PMI</span>
+        </div>
+      </div>
+
+      <div class="study-card">
+        <div class="study-status">In Progress</div>
+        <div class="study-icon">☁️</div>
+        <div class="study-card-title">AWS Certified Cloud Practitioner</div>
+        <div class="study-desc">Foundational certification covering core AWS services, cloud concepts, security, architecture, and pricing — building the credential layer to match the hands-on co-development work already underway in the AWS ecosystem.</div>
+        <div class="study-meta">
+          <a class="pulse-link" href="https://aws.amazon.com/certification/certified-cloud-practitioner/" target="_blank">AWS Certification Page</a>
+          <span class="study-tag">Cloud Foundations</span>
+          <span class="study-tag">AWS</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-note">"Not watching AI from the sidelines — building with it, daily."</div>
+    <div class="footer-date">PREPARED MARCH 2026</div>
+  </div>
+
+</div>
+
+<script>
+  // Animate bars on load
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.querySelectorAll('.bar-fill').forEach((bar, i) => {
+        setTimeout(() => {
+          bar.classList.add('animate');
+        }, i * 40);
+      });
+      document.querySelectorAll('.tech-lang-fill').forEach((bar, i) => {
+        setTimeout(() => {
+          bar.classList.add('animate');
+        }, 800 + i * 120);
+      });
+    }, 600);
+  });
+</script>
+</body>
+</html>
